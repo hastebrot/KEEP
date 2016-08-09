@@ -27,22 +27,20 @@ public inline fun <T, K> Iterable<T>.groupingBy(
 where `Grouping<T, K>` is an interface defined as following:
 
 ```
+// A wrapper around a source of elements which could be iterated 
+// with the `keySelector` function attached to it.
 interface Grouping<T, out K> {
     fun elementIterator(): Iterator<T>
     fun keySelector(element: T): K
 }
 ```
 
-It represents a wrapper around a source of elements which could be iterated
-with the `keySelector` function attached to it.
-
-After that it becomes possible to provide various useful extensions for `Grouping<T, K>`.
-
-### Generic aggregation (fold or reduce)
-
-The most generic form of aggregation, that other overloads delegate their implementation to.
+Provide the following extensions for `Grouping<T, K>`:
 
 ```
+// Generic aggregation (fold or reduce)
+// The most generic form of aggregation, that other overloads 
+// delegate their implementation to.
 public inline fun <T, K, R> Grouping<T, K>.aggregate(
         operation: (key: K, value: R?, element: T, first: Boolean) -> R
 ): Map<K, R>
@@ -51,13 +49,10 @@ public inline fun <T, K, R, M : MutableMap<in K, R>> Grouping<T, K>.aggregateTo(
         destination: M,
         operation: (key: K, accumulator: R?, element: T, first: Boolean) -> R
 ): M
-```
 
-### Key-parametrized fold
 
-Here the initial value and the operation depend on the key of a group.
-
-```
+// Key-parametrized fold
+// Here the initial value and the operation depend on the key of a group.
 public inline fun <T, K, R> Grouping<T, K>.fold(
         initialValueSelector: (key: K, element: T) -> R,
         operation: (key: K, accumulator: R, element: T) -> R
@@ -68,13 +63,10 @@ public inline fun <T, K, R, M : MutableMap<in K, R>> Grouping<T, K>.foldTo(
         initialValueSelector: (key: K, element: T) -> R,
         operation: (key: K, accumulator: R, element: T) -> R
 ): M
-```
 
-### Simplified fold
 
-The `initialValue` is a constant and the operation do not depend on the group key.
-
-```
+// Simplified fold
+// The `initialValue` is a constant and the operation do not depend on the group key.
 public inline fun <T, K, R> Grouping<T, K>.fold(
         initialValue: R,
         operation: (accumulator: R, element: T) -> R
@@ -85,11 +77,9 @@ public inline fun <T, K, R, M : MutableMap<in K, R>> Grouping<T, K>.foldTo(
         initialValue: R,
         operation: (accumulator: R, element: T) -> R
 ): M
-```
 
-### Reduce
 
-```
+// Reduce
 public inline fun <S, T : S, K> Grouping<T, K>.reduce(
         operation: (key: K, accumulator: S, element: T) -> S
 ): Map<K, S>
@@ -98,19 +88,15 @@ public inline fun <S, T : S, K, M : MutableMap<in K, S>> Grouping<T, K>.reduceTo
         destination: M,
         operation: (key: K, accumulator: S, element: T) -> S
 ): M
-```
 
-### Count
 
-```
+// Count
 public fun <T, K> Grouping<T, K>.countEach(): Map<K, Int>
 
 public fun <T, K, M : MutableMap<in K, Int>> Grouping<T, K>.countEachTo(destination: M): M
-```
 
-### SumBy
 
-```
+// SumBy
 public inline fun <T, K> Grouping<T, K>.sumEachBy(
     valueSelector: (T) -> Int
 ): Map<K, Int>
