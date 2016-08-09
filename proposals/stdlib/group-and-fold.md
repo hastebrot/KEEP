@@ -33,19 +33,24 @@ interface Grouping<T, out K> {
 }
 ```
 
-It represents a wrapper around a source of iterator with the `keySelector`
-function attached to it.
+It represents a wrapper around a source of elements which could be iterated
+with the `keySelector` function attached to it.
 
 After that it becomes possible to provide various useful extensions for `Grouping<T, K>`.
 
 ### Generic aggregation (fold or reduce)
 
-The most generic form of aggreration, that other overloads delegate their implementation to.
+The most generic form of aggregation, that other overloads delegate their implementation to.
 
 ```
 public inline fun <T, K, R> Grouping<T, K>.aggregate(
-    operation: (key: K, value: R?, element: T, first: Boolean) -> R
+        operation: (key: K, value: R?, element: T, first: Boolean) -> R
 ): Map<K, R>
+
+public inline fun <T, K, R, M : MutableMap<in K, R>> Grouping<T, K>.aggregateTo(
+        destination: M,
+        operation: (key: K, accumulator: R?, element: T, first: Boolean) -> R
+): M
 ```
 
 ### Key-parametrized fold
@@ -54,9 +59,15 @@ Here the initial value and the operation depend on the key of a group.
 
 ```
 public inline fun <T, K, R> Grouping<T, K>.fold(
-    initialValueSelector: (K, T) -> R,
-    operation: (K, R, T) -> R
+        initialValueSelector: (key: K, element: T) -> R,
+        operation: (key: K, accumulator: R, element: T) -> R
 ): Map<K, R>
+
+public inline fun <T, K, R, M : MutableMap<in K, R>> Grouping<T, K>.foldTo(
+        destination: M,
+        initialValueSelector: (key: K, element: T) -> R,
+        operation: (key: K, accumulator: R, element: T) -> R
+): M
 ```
 
 ### Simplified fold
@@ -65,23 +76,36 @@ The `initialValue` is a constant and the operation do not depend on the group ke
 
 ```
 public inline fun <T, K, R> Grouping<T, K>.fold(
-    initialValue: R,
-    operation: (R, T) -> R
+        initialValue: R,
+        operation: (accumulator: R, element: T) -> R
 ): Map<K, R>
+
+public inline fun <T, K, R, M : MutableMap<in K, R>> Grouping<T, K>.foldTo(
+        destination: M,
+        initialValue: R,
+        operation: (accumulator: R, element: T) -> R
+): M
 ```
 
 ### Reduce
 
 ```
 public inline fun <S, T : S, K> Grouping<T, K>.reduce(
-    operation: (K, S, T) -> S
+        operation: (key: K, accumulator: S, element: T) -> S
 ): Map<K, S>
+
+public inline fun <S, T : S, K, M : MutableMap<in K, S>> Grouping<T, K>.reduceTo(
+        destination: M,
+        operation: (key: K, accumulator: S, element: T) -> S
+): M
 ```
 
 ### Count
 
 ```
 public fun <T, K> Grouping<T, K>.countEach(): Map<K, Int>
+
+public fun <T, K, M : MutableMap<in K, Int>> Grouping<T, K>.countEachTo(destination: M): M
 ```
 
 ### SumBy
@@ -90,6 +114,9 @@ public fun <T, K> Grouping<T, K>.countEach(): Map<K, Int>
 public inline fun <T, K> Grouping<T, K>.sumEachBy(
     valueSelector: (T) -> Int
 ): Map<K, Int>
+
+public inline fun <T, K, M : MutableMap<in K, Int>> Grouping<T, K>.sumEachByTo(destination: M, valueSelector: (T) -> Int): M
+
 ```
 
 ## Use cases
