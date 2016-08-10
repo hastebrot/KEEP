@@ -26,7 +26,7 @@ public inline fun <T, K> Iterable<T>.groupingBy(
 
 where `Grouping<T, K>` is an interface defined as following:
 
-```
+```kotlin
 // A wrapper around a source of elements which could be iterated 
 // with the `keySelector` function attached to it.
 interface Grouping<T, out K> {
@@ -37,7 +37,7 @@ interface Grouping<T, out K> {
 
 Provide the following extensions for `Grouping<T, K>`:
 
-```
+```kotlin
 // Generic aggregation (fold or reduce)
 // The most generic form of aggregation, that other overloads 
 // delegate their implementation to.
@@ -137,7 +137,7 @@ The most common use case is doing some aggregation, broken down by some key:
 
     Example:
 
-    ```
+    ```kotlin
     val frequencies: Map<String, Int> =
             words.groupBy { it }.mapValues { it.value.size }
     ```
@@ -147,7 +147,7 @@ The most common use case is doing some aggregation, broken down by some key:
     * Con: observable transformations overhead,
     asymptotically less than that of `mapValues`.
 
-    ```
+    ```kotlin
     val frequencies: Map<String, Int> =
             Observable.from(values)
                     .groupBy { it }
